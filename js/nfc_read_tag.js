@@ -42,26 +42,33 @@ var NfcDemo = {
     var techList = this.tagContainer.querySelector('[data-type="tech-list"]');
     var tagId = this.tagContainer.querySelector('[data-type="tag-id"]');
     var tagType = this.tagContainer.querySelector('[data-type="tag-type"]');
-    var maxNDEFSize = this.tagContainer.querySelector('[data-type="max-ndef-size"]');
+    var maxNDEFSize = this.tagContainer.
+      querySelector('[data-type="max-ndef-size"]');
     var readOnly = this.tagContainer.querySelector('[data-type="read-only"]');
-    var formatable = this.tagContainer.querySelector('[data-type="formatable"]');
-    var canReadOnly = this.tagContainer.querySelector('[data-type="can-be-made-read-only"]');
+    var formatable = this.tagContainer.
+      querySelector('[data-type="formatable"]');
+    var canReadOnly =
+      this.tagContainer.querySelector('[data-type="can-be-made-read-only"]');
     var isLost = this.tagContainer.querySelector('[data-type="is-lost"]');
 
     techList.textContent = tag.techList || 'null';
     tagId.textContent = this.dumpUint8Array(tag.id);
     tagType.textContent = tag.type || 'null';
     maxNDEFSize.textContent = tag.maxNDEFSize || 'null';
-    readOnly.textContent = tag.isReadOnly || 'null';
-    formatable.textContent = tag.isFormatable || 'null';
-    canReadOnly.textContent = tag.canBeMadeReadOnly || 'null';
+    readOnly.textContent = tag.isReadOnly != null ?
+                             tag.isReadOnly : 'null';
+    formatable.textContent = tag.isFormatable != null ?
+                               tag.isFormatable : 'null';
+    canReadOnly.textContent = tag.canBeMadeReadOnly != null ?
+                                tag.canBeMadeReadOnly : 'null';
     isLost.textContent = tag.isLost;
 
     var ndefRecords = event.ndefRecords;
     var ndefLen = ndefRecords ? ndefRecords.length : 0;
 
     // clear previous ndef information
-    var recordCount = this.ndefMsgContainer.querySelector('[data-type="record-count"]');
+    var recordCount = this.ndefMsgContainer.
+      querySelector('[data-type="record-count"]');
     var previousCount = recordCount.textContent;
     var i;
     for (i = 0; i < previousCount; i++) {
@@ -128,7 +135,8 @@ var NfcDemo = {
 
   showNDEFRecords: function nd_showNDEFRecords(ndefRecords) {
     var ndefLen = ndefRecords.length;
-    var recordCount = this.ndefMsgContainer.querySelector('[data-type="record-count"]');
+    var recordCount = this.ndefMsgContainer.
+      querySelector('[data-type="record-count"]');
     recordCount.textContent = ndefLen;
     var ndefTemplate = document.getElementById("ndef-template");
     ndefTemplate.hidden = true;
