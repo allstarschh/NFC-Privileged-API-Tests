@@ -14,25 +14,18 @@ var NfcDemo = {
     }
 
     if (!nfc.enabled) {
-      nfc.enabled = true;
       globalMsg.textContent = 'NFC is not enabled.';
-      dump("nfc.enabled="+nfc.enabled);
       return;
     }
 
     document.getElementById('global-message').textContent = '';
 
     nfc.onpeerfound = this.handlePeerFound.bind(this);
-    nfc.ontagfound = function (event) {
-      dump('tagfound');
-    }
   },
 
   handlePeerFound: function nd_handleTagFound(event) {
     var peer = event.peer;
     var result = this.tagContainer.querySelector('[data-type="send-result"]');
-        
-    var tnf = 0x01; //"well know"
     var type = new Uint8Array(this.fromUTF8("U"));
     var content = String.fromCharCode(1) + "google.com";
     var payload = this.fromUTF8(content);

@@ -1,5 +1,5 @@
 {
-  "name": "NFC privileged API tests",
+  "name": "NFC API tests",
   "launch_path": "/index.html",
   "type": "privileged",
   "developer": {

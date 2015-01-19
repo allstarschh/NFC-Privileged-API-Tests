@@ -1,34 +1,43 @@
 var NfcDemo = {
   tagContainer: null,
+  ndefMsgContainer: null,
+
+  tag: null,
 
   init: function nd_init() {
     dump('NfcDemo init');
     var content = document.getElementById('content');
-    var globalMsg = document.getElementById('global-message');
-    this.tagContainer = content.querySelector('[data-type="tag-container"]')
+    var errorMsg = document.getElementById('error-message');
+    this.tagContainer = document.getElementById('tag-container');
+    this.ndefMsgContainer = document.getElementById('ndef-msg-container');
+    this.ndefMsgContainer.hidden = true;
 
     var nfc = window.navigator.mozNfc;
     if (!nfc) {
-      globalMsg.textContent = 'NFC API not available.';
+      errorMsg.textContent = 'NFC API not available.';
       return;
     }
 
     if (!nfc.enabled) {
-      nfc.enabled = true;
-      globalMsg.textContent = 'NFC is not enabled.';
-      dump("nfc.enabled="+nfc.enabled);
+      errorMsg.textContent = 'NFC is not enabled.';
       return;
     }
 
-    document.getElementById('global-message').textContent = '';
+    document.getElementById('error-message').textContent = '';
 
     nfc.ontagfound = this.handleTagFound.bind(this);
-    nfc.onpeerfound = function (event) {
-      dump('peerfound');
-    }
+    nfc.ontaglost = this.handleTagLost.bind(this);
   },
 
   handleTagFound: function nd_handleTagFound(event) {
+    // clear success/error message.
+    var errorMsg = document.getElementById('error-message');
+    errorMsg.textContent = '';
+    var sucMsg = document.getElementById('success-message');
+    sucMsg.textContent = '';
+
+    this.tag = event.tag;
+
     var tag = event.tag;
     var techList = this.tagContainer.querySelector('[data-type="tech-list"]');
     var tagId = this.tagContainer.querySelector('[data-type="tag-id"]');
@@ -39,19 +48,133 @@ var NfcDemo = {
     var canReadOnly = this.tagContainer.querySelector('[data-type="can-be-made-read-only"]');
     var isLost = this.tagContainer.querySelector('[data-type="is-lost"]');
 
-    techList.textContent = tag.techList;
-    tagId.textContent = "";
-    var len = tag.id ? tag.id.length : 0;
-    for (var i = 0; i < len; i++) {
-      tagId.textContent += tag.id[i].toString(16);
-    }
-    tagType.textContent = tag.type;
-    maxNDEFSize.textContent = tag.maxNDEFSize;
-    readOnly.textContent = tag.isReadOnly;
-    formatable.textContent = tag.isFormatable;
-    canReadOnly.textContent = tag.canBeMadeReadOnly;
+    techList.textContent = tag.techList || 'null';
+    tagId.textContent = this.dumpUint8Array(tag.id);
+    tagType.textContent = tag.type || 'null';
+    maxNDEFSize.textContent = tag.maxNDEFSize || 'null';
+    readOnly.textContent = tag.isReadOnly || 'null';
+    formatable.textContent = tag.isFormatable || 'null';
+    canReadOnly.textContent = tag.canBeMadeReadOnly || 'null';
     isLost.textContent = tag.isLost;
+
+    var ndefRecords = event.ndefRecords;
+    var ndefLen = ndefRecords ? ndefRecords.length : 0;
+
+    // clear previous ndef information
+    var recordCount = this.ndefMsgContainer.querySelector('[data-type="record-count"]');
+    var previousCount = recordCount.textContent;
+    var i;
+    for (i = 0; i < previousCount; i++) {
+      var ndefContainer = document.getElementById("ndef#" + i);
+      if (ndefContainer) {
+        this.ndefMsgContainer.removeChild(ndefContainer);
+      }
+    }
+
+    // if no NDEF Records are contained, bail out.
+    if (!ndefLen) {
+      this.ndefMsgContainer.hidden = true;
+      return true;
+    }
+
+    this.showNDEFRecords(event.ndefRecords);
+
+    tag.readNDEF().then(
+      function (ndefRecords) {
+        this.compareRecords(ndefRecords, event.ndefRecords);
+      }.bind(this),
+      error => {
+        errorMsg.textContent = 'readNDEF failed, ' + error;
+      });
+
     return false;
+  },
+
+  handleTagLost: function nd_handleTagLost() {
+    // update tag.isLost field.
+    var tag = this.tag;
+    var isLost = this.tagContainer.querySelector('[data-type="is-lost"]');
+    isLost.textContent = tag.isLost;
+  },
+
+  compareRecords: function nd_compareRecords(recordsA, recordsB) {
+    var errorMsg = document.getElementById('error-message');
+
+    if (recordsA.length != recordsB.length) {
+      errorMsg.textContent = 'Number of Records are different.';
+      return;
+    }
+
+    var identical = true;
+    for (var i = 0; i < recordsA.length; i++) {
+      var A = recordsA[i];
+      var B = recordsB[i];
+
+      var props = ['tnf', 'type', 'id', 'payload'];
+      for (var prop of props) {
+        if (A.prop != B.prop) {
+          identical = false;
+          errorMsg.textContent = prop + ' mismatched in the ' + i + 'th record';
+          break;
+        }
+      }
+    }
+
+    if (identical) {
+      var sucMsg = document.getElementById('success-message');
+      sucMsg.textContent = 'readNDEF succeeds.';
+    }
+  },
+
+  showNDEFRecords: function nd_showNDEFRecords(ndefRecords) {
+    var ndefLen = ndefRecords.length;
+    var recordCount = this.ndefMsgContainer.querySelector('[data-type="record-count"]');
+    recordCount.textContent = ndefLen;
+    var ndefTemplate = document.getElementById("ndef-template");
+    ndefTemplate.hidden = true;
+
+    for (i = 0; i < ndefLen; i++) {
+      var ndefContainer = document.getElementById("ndef#" + i);
+      if (!ndefContainer) {
+        ndefContainer = ndefTemplate.cloneNode(true);
+        ndefContainer.id = 'ndef#' + i;
+
+        var tnf = ndefContainer.querySelector('[data-type="ndef-tnf"]');
+        tnf.textContent = ndefRecords[i].tnf;
+
+        var type = ndefContainer.querySelector('[data-type="ndef-type"]');
+        type.textContent = this.dumpUint8Array(ndefRecords[i].type);
+
+        var id = ndefContainer.querySelector('[data-type="ndef-id"]');
+        id.textContent = this.dumpUint8Array(ndefRecords[i].id);
+
+        var payload = ndefContainer.querySelector('[data-type="ndef-payload"]');
+        payload.textContent = this.dumpUint8Array(ndefRecords[i].payload);
+
+        ndefContainer.hidden = false;
+        this.ndefMsgContainer.appendChild(ndefContainer);
+      }
+    }
+
+    this.ndefMsgContainer.hidden = false;
+  },
+
+  dumpUint8Array: function nd_dumpUint8Array(array) {
+    if (!array) {
+      return 'null';
+    }
+
+    var str = '[';
+    var i;
+    var arrayLen = array ? array.length : 0;
+    for (i = 0; i < arrayLen; i++) {
+      str += '0x' + array[i].toString(16);
+      if (i != array.length - 1) {
+        str += ', ';
+      }
+    }
+
+    return str + ']';
   }
 };
 

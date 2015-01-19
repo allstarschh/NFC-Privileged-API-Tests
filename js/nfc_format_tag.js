@@ -14,18 +14,13 @@ var NfcDemo = {
     }
 
     if (!nfc.enabled) {
-      nfc.enabled = true;
       globalMsg.textContent = 'NFC is not enabled.';
-      dump("nfc.enabled="+nfc.enabled);
       return;
     }
 
     document.getElementById('global-message').textContent = '';
 
     nfc.ontagfound = this.handleTagFound.bind(this);
-    nfc.onpeerfound = function (event) {
-      dump('peerfound');
-    }
   },
 
   handleTagFound: function nd_handleTagFound(event) {

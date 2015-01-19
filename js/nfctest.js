@@ -1,6 +1,6 @@
 'use stricts';
 
-var UITest = {
+var NfcTest = {
   get APItests() {
     delete this.APItests;
     return this.APItests = document.getElementById('API-tests');
@@ -31,7 +31,7 @@ var UITest = {
       return;
     }
 
-    // handle notifications when uitest is closed
+    // handle notifications when this app is closed
     navigator.mozApps.getSelf().onsuccess = function gotSelf(evt) {
       var app = evt.target.result;
 
@@ -138,4 +138,4 @@ var UITest = {
   }
 };
 
-window.addEventListener('load', UITest.init.bind(UITest));
+window.addEventListener('load', NfcTest.init.bind(NfcTest));
