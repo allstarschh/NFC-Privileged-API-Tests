@@ -27,10 +27,12 @@ var NfcDemo = {
     var tag = event.tag;
     var result = this.tagContainer.querySelector('[data-type="write-result"]');
     var type = new Uint8Array(this.fromUTF8("U"));
-    var content = String.fromCharCode(1) + "google.com";
-    var payload = this.fromUTF8(content);
-     
-    var record = [new MozNDEFRecord({tnf: "well-known", type: type, payload: payload})];
+    var content = String.fromCharCode(1) + "mozilla.org";
+    var payload = this.fromUTF8(content)
+
+    var nfcUtils = new NfcUtils();
+    var record = nfcUtils.parseURIString('http://www.mozilla.org');
+//    [new MozNDEFRecord({tnf: "well-known", type: type, payload: payload})];
 
     tag.writeNDEF(record).then(() => {
       result.style.color = "Green";
