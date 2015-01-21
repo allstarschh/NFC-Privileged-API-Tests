@@ -51,8 +51,9 @@ var NfcReadDemo = {
       this.tagContainer.querySelector('[data-type="can-be-made-read-only"]');
     var isLost = this.tagContainer.querySelector('[data-type="is-lost"]');
 
+    var ndefHelper = new NDEFHelper();
     techList.textContent = tag.techList || 'null';
-    tagId.textContent = this.dumpUint8Array(tag.id);
+    tagId.textContent = ndefHelper.dumpUint8Array(tag.id);
     tagType.textContent = tag.type || 'null';
     maxNDEFSize.textContent = tag.maxNDEFSize || 'null';
     readOnly.textContent = tag.isReadOnly != null ?
@@ -141,6 +142,7 @@ var NfcReadDemo = {
     var ndefTemplate = document.getElementById("ndef-template");
     ndefTemplate.hidden = true;
 
+    var ndefHelper = new NDEFHelper();
     for (i = 0; i < ndefLen; i++) {
       var ndefContainer = document.getElementById("ndef#" + i);
       if (!ndefContainer) {
@@ -151,13 +153,13 @@ var NfcReadDemo = {
         tnf.textContent = ndefRecords[i].tnf;
 
         var type = ndefContainer.querySelector('[data-type="ndef-type"]');
-        type.textContent = this.dumpUint8Array(ndefRecords[i].type);
+        type.textContent = ndefHelper.dumpUint8Array(ndefRecords[i].type);
 
         var id = ndefContainer.querySelector('[data-type="ndef-id"]');
-        id.textContent = this.dumpUint8Array(ndefRecords[i].id);
+        id.textContent = ndefHelper.dumpUint8Array(ndefRecords[i].id);
 
         var payload = ndefContainer.querySelector('[data-type="ndef-payload"]');
-        payload.textContent = this.dumpUint8Array(ndefRecords[i].payload);
+        payload.textContent = ndefHelper.dumpUint8Array(ndefRecords[i].payload);
 
         ndefContainer.hidden = false;
         this.ndefMsgContainer.appendChild(ndefContainer);
@@ -165,24 +167,6 @@ var NfcReadDemo = {
     }
 
     this.ndefMsgContainer.hidden = false;
-  },
-
-  dumpUint8Array: function nd_dumpUint8Array(array) {
-    if (!array) {
-      return 'null';
-    }
-
-    var str = '[';
-    var i;
-    var arrayLen = array ? array.length : 0;
-    for (i = 0; i < arrayLen; i++) {
-      str += '0x' + array[i].toString(16);
-      if (i != array.length - 1) {
-        str += ', ';
-      }
-    }
-
-    return str + ']';
   }
 };
 

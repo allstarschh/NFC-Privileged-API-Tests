@@ -27,10 +27,10 @@ var NfcWriteDemo = {
     var tag = event.tag;
     var result = this.tagContainer.querySelector('[data-type="write-result"]');
 
-    var nfcUtils = new NfcUtils();
-    var record = nfcUtils.parseURIString('http://www.mozilla.org');
+    var ndefHelper = new NDEFHelper();
+    var record = ndefHelper.createURI('http://www.mozilla.org');
 
-    tag.writeNDEF(record).then(() => {
+    tag.writeNDEF([record]).then(() => {
       result.style.color = "Green";
       result.textContent = "Pass";
     }).catch((err) => {

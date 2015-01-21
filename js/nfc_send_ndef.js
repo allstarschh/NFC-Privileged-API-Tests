@@ -27,10 +27,10 @@ var NfcSendDemo = {
     var peer = event.peer;
     var result = this.tagContainer.querySelector('[data-type="send-result"]');
 
-    var nfcUtils = new NfcUtils();
-    var record = nfcUtils.parseURIString('http://www.mozilla.org');
+    var ndefHelper = new NDEFHelper();
+    var record = ndefHelper.createURI('http://www.mozilla.org');
 
-    peer.sendNDEF(record).then(() => {
+    peer.sendNDEF([record]).then(() => {
       result.style.color = "Green";
       result.textContent = "Pass";
     }).catch((err) => {
