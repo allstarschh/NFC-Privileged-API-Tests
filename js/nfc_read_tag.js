@@ -1,11 +1,11 @@
-var NfcDemo = {
+var NfcReadDemo = {
   tagContainer: null,
   ndefMsgContainer: null,
 
   tag: null,
 
   init: function nd_init() {
-    dump('NfcDemo init');
+    dump('NfcReadDemo init');
     var content = document.getElementById('content');
     var errorMsg = document.getElementById('error-message');
     this.tagContainer = document.getElementById('tag-container');
@@ -186,4 +186,4 @@ var NfcDemo = {
   }
 };
 
-window.addEventListener('load', () => NfcDemo.init());
+window.addEventListener('load', () => NfcReadDemo.init());

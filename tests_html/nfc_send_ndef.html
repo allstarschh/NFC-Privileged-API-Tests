@@ -4,18 +4,22 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1">
     <meta charset="utf-8">
     <title>NFC test</title>
+    <script defer src="/shared/js/utilities.js"></script>
+    <script defer src="/shared/js/nfc_utils.js"></script>
     <script defer src="../../js/nfc_send_ndef.js"></script>
     <link rel="stylesheet" type="text/css" href="../style/API.css">
   </head>
   <body>
     <div id="content">
       <div>
-        <h2>Send NDEF to Peer</h2>
+        <h2>Test Description</h2>
+        <h5>
+          Tap an NFC tag, then this app will try to write URL(http://www.mozilla.org)
+          to that tag.
+        </h5>
       </div>
+
       <h4 id="global-message" class="error"></h4>
-      <div>
-        Send http://www.google.com to peer
-      </div>
       <div data-type="tag-container">
         <div><span data-type="send-result" style="font-weight:bold"></span> </div>
       </div>

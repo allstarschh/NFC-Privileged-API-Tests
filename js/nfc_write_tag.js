@@ -1,8 +1,8 @@
-var NfcDemo = {
+var NfcWriteDemo = {
   tagContainer: null,
 
   init: function nd_init() {
-    dump('NfcDemo init');
+    dump('NfcWriteDemo init');
     var content = document.getElementById('content');
     var globalMsg = document.getElementById('global-message');
     this.tagContainer = content.querySelector('[data-type="tag-container"]')
@@ -26,13 +26,9 @@ var NfcDemo = {
   handleTagFound: function nd_handleTagFound(event) {
     var tag = event.tag;
     var result = this.tagContainer.querySelector('[data-type="write-result"]');
-    var type = new Uint8Array(this.fromUTF8("U"));
-    var content = String.fromCharCode(1) + "mozilla.org";
-    var payload = this.fromUTF8(content)
 
     var nfcUtils = new NfcUtils();
     var record = nfcUtils.parseURIString('http://www.mozilla.org');
-//    [new MozNDEFRecord({tnf: "well-known", type: type, payload: payload})];
 
     tag.writeNDEF(record).then(() => {
       result.style.color = "Green";
@@ -43,14 +39,6 @@ var NfcDemo = {
     });
     return false;
   },
-
-  fromUTF8: function(str) {
-    var buf = new Uint8Array(str.length);
-    for (var i = 0; i < str.length; i++) {
-      buf[i] = str.charCodeAt(i);
-    }
-    return buf;
-  }
 };
 
-window.addEventListener('load', () => NfcDemo.init());
+window.addEventListener('load', () => NfcWriteDemo.init());

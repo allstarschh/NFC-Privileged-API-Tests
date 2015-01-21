@@ -1,8 +1,8 @@
-var NfcDemo = {
+var NfcSendDemo = {
   tagContainer: null,
 
   init: function nd_init() {
-    dump('NfcDemo init');
+    dump('NfcSendDemo init');
     var content = document.getElementById('content');
     var globalMsg = document.getElementById('global-message');
     this.tagContainer = content.querySelector('[data-type="tag-container"]')
@@ -23,14 +23,12 @@ var NfcDemo = {
     nfc.onpeerfound = this.handlePeerFound.bind(this);
   },
 
-  handlePeerFound: function nd_handleTagFound(event) {
+  handlePeerFound: function nd_handlePeerFound(event) {
     var peer = event.peer;
     var result = this.tagContainer.querySelector('[data-type="send-result"]');
-    var type = new Uint8Array(this.fromUTF8("U"));
-    var content = String.fromCharCode(1) + "google.com";
-    var payload = this.fromUTF8(content);
-      
-    var record = [new MozNDEFRecord({tnf: "well-known", type: type, payload: payload})];
+
+    var nfcUtils = new NfcUtils();
+    var record = nfcUtils.parseURIString('http://www.mozilla.org');
 
     peer.sendNDEF(record).then(() => {
       result.style.color = "Green";
@@ -41,14 +39,6 @@ var NfcDemo = {
     });
     return false;
   },
-
-  fromUTF8: function(str) {
-    var buf = new Uint8Array(str.length);
-    for (var i = 0; i < str.length; i++) {
-      buf[i] = str.charCodeAt(i);
-    }
-    return buf;
-  }
 };
 
-window.addEventListener('load', () => NfcDemo.init());
+window.addEventListener('load', () => NfcSendDemo.init());
